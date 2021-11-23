@@ -56,9 +56,6 @@ class AwsReviewAppsStack(cdk.Stack):
 
         # @see https://developer.github.com/v3/activity/events/types/
         events = [
-            "create",
-            "delete",
-            "push",
             "pull_request"
         ]
 
