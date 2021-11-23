@@ -11,3 +11,8 @@ logger.setLevel(logging.INFO)
 def handler(event, context):
     """Lambda function handler"""
     logger.info(event)
+    return {
+      "statusCode": "200",
+      "headers": {},
+      "body": "{}"
+    }
