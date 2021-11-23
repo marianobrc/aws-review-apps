@@ -11,7 +11,7 @@ logger.setLevel(logging.DEBUG)
 def handler(event, context):
     """Lambda function handler"""
     logger.debug(f"GH Event received:\n{event['body']}")
-    gh_branch = event["body"]["ref"]
+    gh_branch = event["body"].get("ref")
     logger.info(f"GH event detected in branch:\n{gh_branch}")
     return {
       "statusCode": "200",
