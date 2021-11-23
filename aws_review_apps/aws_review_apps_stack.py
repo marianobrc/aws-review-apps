@@ -55,7 +55,12 @@ class AwsReviewAppsStack(cdk.Stack):
         github_api_token = SecretKey.from_plain_text(github_api_token)
 
         # @see https://developer.github.com/v3/activity/events/types/
-        events = ["*"]
+        events = [
+            "create",
+            "delete",
+            "push",
+            "pull_request"
+        ]
 
         GithubWebhook(
             self, "GithubWebhook",

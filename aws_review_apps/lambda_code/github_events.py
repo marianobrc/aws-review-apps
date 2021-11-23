@@ -5,12 +5,14 @@ import logging
 import os
 
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 def handler(event, context):
     """Lambda function handler"""
-    logger.info(event)
+    logger.debug(f"GH Event received:\n{event['body']}")
+    gh_branch = event["body"]["ref"]
+    logger.info(f"GH event detected in branch:\n{gh_branch}")
     return {
       "statusCode": "200",
       "headers": {},
