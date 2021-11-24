@@ -9,13 +9,14 @@ from aws_cdk import core as cdk
 # being updated to use `cdk`.  You may delete this import if you don't need it.
 from aws_cdk import core
 
-from aws_review_apps.aws_review_apps_stack import AwsReviewAppsStack
+from aws_review_apps.review_app_pipeline_builder_stack import ReviewAppPipelineBuilderStack
 
 
 app = cdk.App()
-AwsReviewAppsStack(app, "AwsReviewAppsStack",
+# Create and Destroy review apps based on GH events like PR opened/closed
+ReviewAppPipelineBuilderStack(app, "ReviewAppPipelineBuilderStack",
     github_api_token=os.getenv('GH_API_TOKEN'),
-    github_repo_url="https://github.com/marianobrc/aws-review-apps",
+    github_repo_url="https://github.com/marianobrc/aws-review-apps.git",
     env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
 )
 app.synth()
