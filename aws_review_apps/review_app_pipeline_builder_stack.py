@@ -86,13 +86,17 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
                 }
             }
         ))
+        lambda_role.add_to_policy(PolicyStatement(
+            actions=['iam:PassRole'],
+            resources=[code_build_role.role_arn]
+        ))
 
         # The lambda function
         self.review_apps_builder_lambda = aws_lambda.Function(
             self,
-            'LambdaPipelineBuilderOnBranchCreateStack',
+            'LambdaPipelineBuilderOnPRStack',
             runtime=aws_lambda.Runtime.PYTHON_3_8,
-            function_name='LambdaPipelineBuilderOnBranchCreate',
+            function_name='LambdaPipelineBuilderOnPR',
             handler='github_events.handler',
             code=aws_lambda.Code.from_asset(path.join(path.dirname(__file__), 'lambda_code')),
             environment={

@@ -35,13 +35,13 @@ def handler(event, context):
     """Lambda function handler"""
     gh_event = json.loads(event['body'])
     logger.debug(f"GH Event received:\n{gh_event}")
-    dst_branch = gh_event["pull_request"]["base"]["ref"]
-    src_branch = gh_event["pull_request"]["head"]["ref"]
     action = gh_event.get("action")
-    logger.info(f"PR detected: {dst_branch} <- {src_branch} [{action}]")
     if action == "opened":  # New PR
+        dst_branch = gh_event["pull_request"]["base"]["ref"]
+        src_branch = gh_event["pull_request"]["head"]["ref"]
+        logger.info(f"PR detected: {dst_branch} <- {src_branch} [{action}]")
         logger.info(f"Making a codebuild project to deploy pipeline for branch {src_branch}..")
-        repo_url = event['head']['repo']['clone_url']
+        repo_url = gh_event["pull_request"]['head']['repo']['clone_url']
         region = os.environ['AWS_REGION']
         account_id = os.environ['ACCOUNT_ID']
         role_arn = os.environ['CODE_BUILD_ROLE_ARN']
