@@ -47,8 +47,9 @@ def handler(event, context):
         role_arn = os.environ['CODE_BUILD_ROLE_ARN']
         artifact_bucket_name = os.environ['ARTIFACT_BUCKET']
         codebuild_client = boto3.client('codebuild')
+        codebuild_project_name = f'build-review-app-{src_branch}'
         codebuild_client.create_project(
-            name=f'build-review-app-{src_branch}',
+            name=codebuild_project_name,
             description=f"Build project to deploy a review app pipeline for branch {src_branch}",
             source={
                 'type': 'GITHUB',
@@ -76,7 +77,7 @@ def handler(event, context):
         )
         logger.info(f"Deploying pipeline for branch {src_branch}..")
         codebuild_client.start_build(
-            projectName=f'CodeBuild-build-review-app-{src_branch}'
+            projectName=codebuild_project_name
         )
 
     return {
