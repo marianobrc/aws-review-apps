@@ -62,8 +62,8 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
         code_build_role.add_to_policy(PolicyStatement(
             actions=['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
             resources=[
-                f'arn:aws:logs:{region}:{account_id}:log-group:/aws/codebuild/review-apps-*',
-                f'arn:aws:logs:{region}:{account_id}:log-group:/aws/codebuild/review-apps-*:*']
+                f'arn:aws:logs:{region}:{account_id}:log-group:/aws/codebuild/build-review-app-*',
+                f'arn:aws:logs:{region}:{account_id}:log-group:/aws/codebuild/build-review-app-*:*']
         ))
         # code_build_role.add_to_policy(PolicyStatement(
         #     actions=['codecommit:Get*', 'codecommit:List*', 'codecommit:GitPull'],
