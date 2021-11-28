@@ -10,7 +10,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 
-def generate_build_spec(branch: str, account_id: str, region: str):
+def generate_build_spec(branch: str, stack_name, account_id: str, region: str):
     """Generates the build spec file used for the CodeBuild project"""
     return f"""version: 0.2
 env:
@@ -24,8 +24,8 @@ phases:
       - npm install -g aws-cdk && pip install -r requirements.txt
   build:
     commands:
-      - cdk synth
-      - cdk deploy ReviewAppPipeline --require-approval=never
+      - cdk synth {stack_name}
+      - cdk deploy {stack_name} --require-approval=never
 artifacts:
   files:
     - '**/*'"""
@@ -48,6 +48,7 @@ def handler(event, context):
         artifact_bucket_name = os.environ['ARTIFACT_BUCKET']
         codebuild_client = boto3.client('codebuild')
         codebuild_project_name = f'build-review-app-{src_branch}'
+        stack_name = f"ReviewAppPipeline{src_branch.capitalize()}"
         codebuild_client.create_project(
             name=codebuild_project_name,
             description=f"Build project to deploy a review app pipeline for branch {src_branch}",
@@ -56,6 +57,7 @@ def handler(event, context):
                 'location': repo_url,
                 'buildspec': generate_build_spec(
                     branch=src_branch,
+                    stack_name=stack_name,
                     account_id=account_id,
                     region=region
                 )

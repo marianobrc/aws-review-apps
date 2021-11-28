@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os
-
 from aws_cdk import core as cdk
 
 # For consistency with TypeScript code, `cdk` is the preferred import name for
@@ -10,11 +9,18 @@ from aws_cdk import core as cdk
 from aws_cdk import core
 
 from aws_review_apps.review_app_pipeline_builder_stack import ReviewAppPipelineBuilderStack
-
+from review_app_pipeline_stack import ReviewAppPipeline
 
 app = cdk.App()
 # Create and Destroy review apps based on GH events like PR opened/closed
 ReviewAppPipelineBuilderStack(app, "ReviewAppPipelineBuilderStack",
+    github_api_token=os.getenv('GH_API_TOKEN'),
+    github_repo_url="https://github.com/marianobrc/aws-review-apps.git",
+    env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
+)
+review_app_branch = os.getenv("BRANCH")
+review_app_stack_name = f"ReviewAppPipeline{review_app_branch.capitalize()}"
+ReviewAppPipeline(app, review_app_stack_name,
     github_api_token=os.getenv('GH_API_TOKEN'),
     github_repo_url="https://github.com/marianobrc/aws-review-apps.git",
     env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),

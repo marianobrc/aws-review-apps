@@ -1,4 +1,3 @@
-import os
 from os import path
 from aws_cdk import core as cdk
 # For consistency with other languages, `cdk` is the preferred import name for
