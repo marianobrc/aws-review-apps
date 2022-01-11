@@ -21,7 +21,6 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
         github_api_token = kwargs.pop("github_api_token")
         github_repo_url = kwargs.pop("github_repo_url")
         super().__init__(scope, construct_id, **kwargs)
-        # Define a lambda function to create and trigger a new pipeline on new feature branch creation
 
         # IAM Role for the AWS Lambda function
         lambda_role = Role(
@@ -39,7 +38,7 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
             ],
             resources=[f'arn:aws:codebuild:{region}:{account_id}:project/*']
         ))
-        # Artifact bucket for feature AWS CodeBuild projects
+        # Artifact bucket for AWS CodeBuild projects related to each branch
         artifact_bucket = s3.Bucket(
             self,
             'BranchArtifacts',
@@ -64,10 +63,6 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
                 f'arn:aws:logs:{region}:{account_id}:log-group:/aws/codebuild/build-review-app-*',
                 f'arn:aws:logs:{region}:{account_id}:log-group:/aws/codebuild/build-review-app-*:*']
         ))
-        # code_build_role.add_to_policy(PolicyStatement(
-        #     actions=['codecommit:Get*', 'codecommit:List*', 'codecommit:GitPull'],
-        #     resources=[f'arn:aws:codecommit:{region}:{account_id}:{repo_name}']
-        # ))
         code_build_role.add_to_policy(PolicyStatement(
             actions=['s3:DeleteObject', 's3:PutObject', 's3:GetObject', 's3:ListBucket'],
             resources=[f'{artifact_bucket.bucket_arn}/*', f'{artifact_bucket.bucket_arn}']
@@ -90,7 +85,7 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
             resources=[code_build_role.role_arn]
         ))
 
-        # The lambda function
+        # Define a lambda function to create and trigger a new pipeline on new PRs
         self.review_apps_builder_lambda = aws_lambda.Function(
             self,
             'LambdaPipelineBuilderOnPRStack',
