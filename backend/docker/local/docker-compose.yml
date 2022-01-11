@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  mybackend-db:
+    image: postgres:10
+    restart: always
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./psql-init/db.sql:/docker-entrypoint-initdb.d/db.sql
+      - postgres_data:/var/lib/postgresql/data/
+
+  mybackend-api:
+    build: &backend-image
+      context: ../..
+      dockerfile: ./docker/local/django/Dockerfile
+    restart: always
+    command: /start-dev-server.sh
+    depends_on:
+      - mybackend-db
+    environment: &backend-env
+      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION_NAME=${AWS_REGION_NAME}
+    volumes: &code
+      - ../..:/code
+    ports:
+      - 8000:8000
+
+volumes:
+  postgres_data:
