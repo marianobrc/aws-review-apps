@@ -22,9 +22,11 @@ env:
 phases:
   pre_build:
     commands:
+      - npm uninstall -g aws-cdk
       - npm install -g aws-cdk@1.34.0 && pip install -r requirements.txt
   build:
     commands:
+      - cdk --version
       - cdk synth {stack_name}
       - cdk deploy {stack_name} --require-approval=never
 artifacts:
@@ -75,7 +77,7 @@ def handler(event, context):
             },
             environment={
                 'type': 'LINUX_CONTAINER',
-                'image': 'aws/codebuild/standard:2.0',
+                'image': 'aws/codebuild/standard:4.0',
                 'computeType': 'BUILD_GENERAL1_SMALL'
             },
             serviceRole=role_arn
