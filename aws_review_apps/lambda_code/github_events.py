@@ -22,7 +22,7 @@ env:
 phases:
   pre_build:
     commands:
-      - npm install -g aws-cdk && pip install -r requirements.txt
+      - npm install -g aws-cdk@1.34.0 && pip install -r requirements.txt
   build:
     commands:
       - cdk synth {stack_name}
