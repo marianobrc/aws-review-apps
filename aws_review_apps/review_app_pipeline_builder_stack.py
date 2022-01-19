@@ -54,7 +54,10 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
             'CodeBuildExecutionRole',
             assumed_by=ServicePrincipal('codebuild.amazonaws.com'))
         code_build_role.add_to_policy(PolicyStatement(
-            actions=['cloudformation:DescribeStacks', 'cloudformation:DeleteStack', 'cloudformation:GetTemplate', ],
+            actions=[
+                'cloudformation:DescribeStacks', 'cloudformation:DeleteStack',
+                'cloudformation:GetTemplate', 'cloudformation:CreateChangeSet',
+            ],
             resources=[f'arn:aws:cloudformation:{region}:{account_id}:stack/*/*']
         ))
         code_build_role.add_to_policy(PolicyStatement(
