@@ -27,8 +27,9 @@ phases:
   build:
     commands:
       - cdk --version
-      - cdk synth {stack_name}
-      - cdk deploy {stack_name} --require-approval=never
+      - cdk doctor
+      - cdk synth -v {stack_name}
+      - cdk deploy -v {stack_name} --require-approval=never
 artifacts:
   files:
     - '**/*'"""
