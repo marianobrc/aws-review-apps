@@ -5,7 +5,6 @@ import aws_cdk.aws_codebuild as codebuild
 import aws_cdk.aws_codepipeline_actions as codepipeline_actions
 from aws_cdk.core import Stack, Construct, SecretValue
 from aws_review_apps.backend_deploy_stack import BackendStack
-from aws_review_apps.docker_registry_stack import DockerRegistryStack
 
 
 class PipelineStack(Stack):
