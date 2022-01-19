@@ -25,10 +25,10 @@ phases:
       - npm install -g aws-cdk && pip install -r requirements.txt
   build:
     commands:
-      - echo "REVIEW_BRANCH: $REVIEW_BRANCH"
-      - echo "ACCOUNT_ID: $ACCOUNT_ID"
-      - echo "REGION: $REGION"
-      - echo "REGION: $GH_API_TOKEN"
+      - echo REVIEW_BRANCH:$REVIEW_BRANCH
+      - echo ACCOUNT_ID:$ACCOUNT_ID
+      - echo REGION:$REGION
+      - echo REGION:$GH_API_TOKEN
       - cdk --version
       - cat ./cdk.context.json
       - cdk doctor
