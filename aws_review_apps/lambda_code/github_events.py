@@ -22,11 +22,15 @@ env:
 phases:
   pre_build:
     commands:
-      - npm uninstall -g aws-cdk
-      - npm install -g aws-cdk@1.34.0 && pip install -r requirements.txt
+      - npm install -g aws-cdk && pip install -r requirements.txt
   build:
     commands:
+      - echo "REVIEW_BRANCH: $REVIEW_BRANCH"
+      - echo "ACCOUNT_ID: $ACCOUNT_ID"
+      - echo "REGION: $REGION"
+      - echo "REGION: $GH_API_TOKEN"
       - cdk --version
+      - cat ./cdk.context.json
       - cdk doctor
       - cdk synth -v {stack_name}
       - cdk deploy -v {stack_name} --require-approval=never
@@ -50,6 +54,7 @@ def handler(event, context):
         account_id = os.environ['ACCOUNT_ID']
         gh_api_token = os.environ['GH_API_TOKEN']
         role_arn = os.environ['CODE_BUILD_ROLE_ARN']
+        logger.info(f"CodeBuild role: {role_arn}..")
         artifact_bucket_name = os.environ['ARTIFACT_BUCKET']
         codebuild_client = boto3.client('codebuild')
         codebuild_project_name = f'build-review-app-{src_branch}'
