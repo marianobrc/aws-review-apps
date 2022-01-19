@@ -6,7 +6,7 @@ from aws_cdk import (
 )
 
 
-class BackendAPIStack(cdk.Stack):
+class BackendAPIStack(cdk.NestedStack):
 
     def __init__(self, scope: cdk.Construct, construct_id: str, **kwargs) -> None:
         app_name = kwargs.pop("app_name", "myapp").lower().strip()
@@ -34,7 +34,7 @@ class BackendAPIStack(cdk.Stack):
             "DJANGO_SETTINGS_MODULE": django_settings,
             "DJANGO_DEBUG": "False",
             "DB_AWS_SECRET_NAME": db_secret_name,
-            "AWS_DATA_PATH": "/home/quickpay-backend/botocore/",
+            "AWS_DATA_PATH": "/home/mybackend/botocore/",
             "AWS_ACCOUNT_ID": os.getenv('CDK_DEFAULT_ACCOUNT'),
             "AWS_STORAGE_BUCKET_NAME": static_files.s3_bucket.bucket_name,
             "CLOUDFRONT_URL": static_files.cloudfront_distro.distribution_domain_name,

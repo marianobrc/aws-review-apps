@@ -2,7 +2,7 @@ from aws_cdk import core as cdk
 from aws_cdk import (aws_rds as rds, aws_ec2 as ec2)
 
 
-class DatabaseStack(cdk.Stack):
+class DatabaseStack(cdk.NestedStack):
 
     def __init__(self, scope: cdk.Construct, construct_id: str, **kwargs) -> None:
         app_name = kwargs.pop("app_name", "myapp").lower().strip()

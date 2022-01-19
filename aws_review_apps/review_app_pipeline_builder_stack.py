@@ -25,7 +25,7 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
         # IAM Role for the AWS Lambda function
         lambda_role = Role(
             self,
-            'LambdaPipelineBuilderRole',
+            'LambdaBuilderRole',
             assumed_by=ServicePrincipal('lambda.amazonaws.com')
         )
         lambda_role.add_managed_policy(
@@ -88,13 +88,15 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
         # Define a lambda function to create and trigger a new pipeline on new PRs
         self.review_apps_builder_lambda = aws_lambda.Function(
             self,
-            'LambdaPipelineBuilderOnPRStack',
+            'LambdaPRHandler',
             runtime=aws_lambda.Runtime.PYTHON_3_8,
             function_name='LambdaPipelineBuilderOnPR',
             handler='github_events.handler',
             code=aws_lambda.Code.from_asset(path.join(path.dirname(__file__), 'lambda_code')),
             environment={
                 "ACCOUNT_ID": account_id,
+                # "AWS_REGION": region,  # Region is already set by lambda
+                "GH_API_TOKEN": github_api_token,
                 "CODE_BUILD_ROLE_ARN": code_build_role.role_arn,
                 "ARTIFACT_BUCKET": artifact_bucket.bucket_name,
             },

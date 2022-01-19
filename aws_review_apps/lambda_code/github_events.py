@@ -10,7 +10,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 
-def generate_build_spec(branch: str, stack_name, account_id: str, region: str):
+def generate_build_spec(branch: str, stack_name, account_id: str, region: str, gh_api_token: str):
     """Generates the build spec file used for the CodeBuild project"""
     return f"""version: 0.2
 env:
@@ -18,6 +18,7 @@ env:
     BRANCH: {branch}
     ACCOUNT_ID: {account_id}
     REGION: {region}
+    GH_API_TOKEN: {gh_api_token}
 phases:
   pre_build:
     commands:
@@ -44,11 +45,12 @@ def handler(event, context):
         repo_url = gh_event["pull_request"]['head']['repo']['clone_url']
         region = os.environ['AWS_REGION']
         account_id = os.environ['ACCOUNT_ID']
+        gh_api_token = os.environ['GH_API_TOKEN']
         role_arn = os.environ['CODE_BUILD_ROLE_ARN']
         artifact_bucket_name = os.environ['ARTIFACT_BUCKET']
         codebuild_client = boto3.client('codebuild')
         codebuild_project_name = f'build-review-app-{src_branch}'
-        stack_name = f"MyBackendReview{src_branch}"
+        stack_name = f"MyBackendReviewAppPIEPLINE-{src_branch}"
         codebuild_client.create_project(
             name=codebuild_project_name,
             description=f"Build project to deploy a review app pipeline for branch {src_branch}",
@@ -59,7 +61,8 @@ def handler(event, context):
                     branch=src_branch,
                     stack_name=stack_name,
                     account_id=account_id,
-                    region=region
+                    region=region,
+                    gh_api_token=gh_api_token
                 )
             },
             sourceVersion=f'refs/heads/{src_branch}',

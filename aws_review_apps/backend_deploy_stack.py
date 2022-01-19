@@ -3,13 +3,12 @@ from typing import Any
 from aws_cdk import core as cdk
 from aws_cdk import aws_ec2 as ec2
 from aws_cdk import aws_ssm as ssm
-from .docker_registry_stack import DockerRegistryStack
 from .database_stack import DatabaseStack
 from .static_files_stack import StaticFilesStack
 from .backend_api_stack import BackendAPIStack
 
 
-class BackendStage(cdk.Stage):
+class BackendStack(cdk.Stack):
     def __init__(
         self,
         scope: cdk.Construct,
@@ -27,44 +26,35 @@ class BackendStage(cdk.Stage):
         min_scaling_capacity: int,
         max_scaling_capacity: int,
         task_memory_mib: int,
-        db_auto_pause_minutes: int=5, # Pause aurora computing capacity when idle to save costs
-        certificate_arn: str=None, # To use HTTPS
+        db_auto_pause_minutes: int = 5,  # Pause aurora computing capacity when idle to save costs
+        certificate_arn: str = None,  # To use HTTPS
         **kwargs: Any,
     ):
         super().__init__(scope, id_, **kwargs)
         # Statefull resources
-        stateful = cdk.Stack(self, "Stateful")
         # Get the vpc to deploy the stage
-        vpc_id = ssm.StringParameter.value_from_lookup(stateful, "/Networking/VPCID")
-        vpc = ec2.Vpc.from_lookup(stateful, "VPC", vpc_id=vpc_id)
-        registry = DockerRegistryStack(
-            stateful,
-            f"{app_name}DockerRegistryStack{deploy_env}",
-            app_name=app_name,
-            deploy_env=deploy_env,
-            env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
-        )
-        db = DatabaseStack(
-            stateful,
+        vpc_id = ssm.StringParameter.value_from_lookup(self, "/Networking/VPCID")
+        vpc = ec2.Vpc.from_lookup(self, "VPC", vpc_id=vpc_id)
+        self.db = DatabaseStack(
+            self,
             f"{app_name}DatabaseStack{deploy_env}",
             app_name=app_name,
             deploy_env=deploy_env,
             vpc=vpc,
             auto_pause_minutes=db_auto_pause_minutes,
-            env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION'))
+            #env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION'))
         )
         # Serve static files for the Backoffice (django-admin)
-        static_files = StaticFilesStack(
-            stateful,
+        self.static_files = StaticFilesStack(
+            self,
             f"{app_name}StaticFilesStack{deploy_env}",
             app_name=app_name,
             deploy_env=deploy_env,
-            env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION'))
+            #env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION'))
         )
         # Stateless resources
-        stateless = cdk.Stack(self, "Stateless")
-        api = BackendAPIStack(
-            stateless,
+        self.api = BackendAPIStack(
+            self,
             f"BackendAPIStack{deploy_env}",
             app_name=app_name,
             deploy_env=deploy_env,
@@ -79,7 +69,7 @@ class BackendStage(cdk.Stage):
             min_scaling_capacity=min_scaling_capacity,
             max_scaling_capacity=max_scaling_capacity,  # Keep ecs tasks count at minimum in staging
             task_memory_mib=task_memory_mib,
-            static_files=static_files,
+            static_files=self.static_files,
             vpc=vpc,
-            env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION'))
+            #env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION'))
         )

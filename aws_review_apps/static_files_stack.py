@@ -2,7 +2,7 @@ from aws_cdk import core as cdk
 from aws_cdk import (aws_s3 as s3, aws_cloudfront as cloudfront)
 
 
-class StaticFilesStack(cdk.Stack):
+class StaticFilesStack(cdk.NestedStack):
 
     def __init__(self, scope: cdk.Construct, construct_id: str, **kwargs) -> None:
         app_name = kwargs.pop("app_name", "myapp").lower().strip()

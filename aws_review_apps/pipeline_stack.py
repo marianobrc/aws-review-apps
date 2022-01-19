@@ -1,25 +1,41 @@
-from aws_cdk.core import Stack, Construct, SecretValue
+import os
+from aws_cdk import core as cdk
 import aws_cdk.aws_codepipeline as codepipeline
 import aws_cdk.aws_codebuild as codebuild
 import aws_cdk.aws_codepipeline_actions as codepipeline_actions
+from aws_cdk.core import Stack, Construct, SecretValue
+from aws_review_apps.backend_deploy_stack import BackendStack
+from aws_review_apps.docker_registry_stack import DockerRegistryStack
 
 
 class PipelineStack(Stack):
 
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
-        app_name = kwargs.pop("app_name", "myapp").lower().strip()
+        app_name = kwargs.pop("app_name").lower().strip()
         deploy_env = kwargs.pop("deploy_env")
-        backend_api = kwargs.pop("backend_api")
-        # backend_workers = kwargs.pop("backend_workers")
+        app_config = kwargs.pop("app_config")
         github_connection = kwargs.pop("github_connection")
         aws_github_secret_name = kwargs.pop("aws_github_secret_name")
         aws_docker_secret_name = kwargs.pop("aws_docker_secret_name")
         source_branch = kwargs.pop("source_branch", "master")
         ecr_repo = kwargs.pop("ecr_repo")
+
         super().__init__(scope, id, **kwargs)
 
+
+        # Instantiate the backend stage
+        backend = BackendStack(
+            self,
+            f"API-{source_branch}",
+            app_name="MyBackend",
+            deploy_env=f"-{source_branch}",
+            **app_config,
+            env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
+        )
+        backend_api = backend.api
+
         # Create an empty Pipeline
-        pipeline_name = f"{app_name}BackendPipeline{deploy_env}"
+        pipeline_name = f"Pipeline{deploy_env}"
         pipeline = codepipeline.Pipeline(
             self,
             pipeline_name,
@@ -91,7 +107,7 @@ class PipelineStack(Stack):
         # Override settings module env var to run unittests
         test_env_vars["DJANGO_SETTINGS_MODULE"] = codebuild.BuildEnvironmentVariable(
             type=codebuild.BuildEnvironmentVariableType.PLAINTEXT,
-            value="quickpay.settings.ci_tests"
+            value="api.settings.ci_tests"
         )
 
         automatic_tests_project = codebuild.Project(
@@ -190,9 +206,7 @@ class PipelineStack(Stack):
 
         # Add a Deploy stage to update ECS service & tasks with the new docker images
         ecs_api_service = backend_api.alb_fargate_service.service
-        # ecs_workers_service = backend_workers.workers_fargate_service.service
         ecr_repo.grant_pull(ecs_api_service.task_definition.execution_role)
-        #ecr_repo.grant_pull(ecs_workers_service.task_definition.execution_role)
         pipeline.add_stage(
             stage_name="Deploy",
             actions=[
@@ -201,10 +215,5 @@ class PipelineStack(Stack):
                     input=build_output,  # Takes the imagedefinitions.json generated in the build stage
                     service=ecs_api_service
                 ),
-                # codepipeline_actions.EcsDeployAction(
-                #     action_name="DEPLOY_WORKERS_ACTION",
-                #     input=build_output,  # Takes the imagedefinitions.json generated in the build stage
-                #     service=ecs_workers_service
-                # )
             ]
         )
