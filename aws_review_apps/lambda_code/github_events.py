@@ -50,7 +50,7 @@ def handler(event, context):
         artifact_bucket_name = os.environ['ARTIFACT_BUCKET']
         codebuild_client = boto3.client('codebuild')
         codebuild_project_name = f'build-review-app-{src_branch}'
-        stack_name = f"MyBackendReviewAppPIEPLINE-{src_branch}"
+        stack_name = f"ReviewPIEPLINE-{src_branch}"
         codebuild_client.create_project(
             name=codebuild_project_name,
             description=f"Build project to deploy a review app pipeline for branch {src_branch}",
