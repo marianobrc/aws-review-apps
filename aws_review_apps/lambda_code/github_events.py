@@ -15,7 +15,7 @@ def generate_build_spec(branch: str, stack_name, account_id: str, region: str, g
     return f"""version: 0.2
 env:
   variables:
-    BRANCH: {branch}
+    REVIEW_BRANCH: {branch}
     ACCOUNT_ID: {account_id}
     REGION: {region}
     GH_API_TOKEN: {gh_api_token}
