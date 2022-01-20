@@ -58,6 +58,7 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
                 'cloudformation:DescribeStacks', 'cloudformation:DeleteStack',
                 'cloudformation:GetTemplate', 'cloudformation:CreateChangeSet',
                 'cloudformation:DescribeChangeSet', 'cloudformation:DeleteChangeSet',
+                'cloudformation:ExecuteChangeSet',
             ],
             resources=[f'arn:aws:cloudformation:{region}:{account_id}:stack/*/*']
         ))
