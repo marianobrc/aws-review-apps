@@ -52,7 +52,9 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
         code_build_role = Role(
             self,
             'CodeBuildExecutionRole',
-            assumed_by=ServicePrincipal('codebuild.amazonaws.com'))
+            assumed_by=ServicePrincipal('codebuild.amazonaws.com')
+        )
+        # Add permissions to run cdk and deploy stacks
         code_build_role.add_to_policy(PolicyStatement(
             actions=[
                 'cloudformation:DescribeStacks', 'cloudformation:DeleteStack',
@@ -62,6 +64,14 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
             ],
             resources=[f'arn:aws:cloudformation:{region}:{account_id}:stack/*/*']
         ))
+        # Add permissions to create ECR repos used by the review app pipelines
+        code_build_role.add_to_policy(PolicyStatement(
+            actions=[
+                'ecr:CreateRepository',
+            ],
+            resources=[f'arn:aws:ecr:{region}:{account_id}:repository/*']
+        ))
+        # Add permissions to write logs
         code_build_role.add_to_policy(PolicyStatement(
             actions=['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
             resources=[
