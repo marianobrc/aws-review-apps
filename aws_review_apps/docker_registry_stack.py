@@ -11,6 +11,6 @@ class DockerRegistryStack(cdk.Stack):
         self.ecr_repo = ecr.Repository(
             self,
             f'{app_name}ECRRepository{deploy_env}',
-            repository_name=f"{app_name}-{deploy_env.lower()}"  # Important: keep teh name lowercase
+            repository_name=f"{app_name}-{deploy_env.lower()}-repo"  # Important: keep the name lowercase
         )
 

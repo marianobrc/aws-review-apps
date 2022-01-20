@@ -42,7 +42,7 @@ ecr_registry = DockerRegistryStack(
     app,
     "MyBackendDockerRegistry",
     app_name="MyBackend",
-    deploy_env="COMMON",
+    deploy_env="GLOBAL",
     env=core.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
 )
 ecr_repo = ecr_registry.ecr_repo

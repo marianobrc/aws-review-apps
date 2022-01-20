@@ -20,6 +20,12 @@ env:
     REGION: {region}
     GH_API_TOKEN: {gh_api_token}
 phases:
+  install:
+    runtime-versions:
+        docker: 18     
+    commands: 
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2&
+      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
   pre_build:
     commands:
       - npm install -g aws-cdk && pip install -r requirements.txt
