@@ -22,7 +22,7 @@ env:
 phases:
   install:
     runtime-versions:
-        docker: 18     
+        docker   
     commands: 
       - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2&
       - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
@@ -90,7 +90,8 @@ def handler(event, context):
             environment={
                 'type': 'LINUX_CONTAINER',
                 'image': 'aws/codebuild/standard:4.0',
-                'computeType': 'BUILD_GENERAL1_SMALL'
+                'computeType': 'BUILD_GENERAL1_SMALL',
+                "privilegedMode": True
             },
             serviceRole=role_arn
         )
