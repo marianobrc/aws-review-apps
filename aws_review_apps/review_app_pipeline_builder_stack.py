@@ -67,9 +67,21 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
         # Add permissions to create ECR repos used by the review app pipelines
         code_build_role.add_to_policy(PolicyStatement(
             actions=[
-                'ecr:CreateRepository',
+                'ecr:CreateRepository', 'ecr:DescribeRepositories',
+                'ecr:PutImageScanningConfiguration', 'ecr:DescribeImages',
+                'ecr:GetAuthorizationToken',
             ],
-            resources=[f'arn:aws:ecr:{region}:{account_id}:repository/*']
+            resources=[
+                f'arn:aws:ecr:{region}:{account_id}:repository/*',
+            ]
+        ))
+        code_build_role.add_to_policy(PolicyStatement(
+            actions=[
+                'ecr:GetAuthorizationToken',
+            ],
+            resources=[
+                '*'
+            ]
         ))
         # Add permissions to write logs
         code_build_role.add_to_policy(PolicyStatement(
