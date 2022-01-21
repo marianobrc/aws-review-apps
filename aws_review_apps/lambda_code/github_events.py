@@ -10,7 +10,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 
-def generate_build_spec(branch: str, stack_name, account_id: str, region: str, gh_api_token: str):
+def generate_build_spec(branch: str, stack_name, account_id: str, region: str, gh_api_token: str, docker_usr: str, docker_psw: str)
     """Generates the build spec file used for the CodeBuild project"""
     return f"""version: 0.2
 env:
@@ -19,6 +19,8 @@ env:
     ACCOUNT_ID: {account_id}
     REGION: {region}
     GH_API_TOKEN: {gh_api_token}
+    DOCKER_USERNAME: {docker_usr}
+    DOCKER_PASSWORD: {docker_psw}
 phases:
   install:
     runtime-versions:
@@ -29,6 +31,7 @@ phases:
   pre_build:
     commands:
       - npm install -g aws-cdk && pip install -r requirements.txt
+      - echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
   build:
     commands:
       - echo REVIEW_BRANCH:$REVIEW_BRANCH
@@ -59,6 +62,8 @@ def handler(event, context):
         region = os.environ['AWS_REGION']
         account_id = os.environ['ACCOUNT_ID']
         gh_api_token = os.environ['GH_API_TOKEN']
+        docker_usr = os.environ['DOCKER_USERNAME']
+        docker_psw = os.environ['DOCKER_PASSWORD']
         role_arn = os.environ['CODE_BUILD_ROLE_ARN']
         logger.info(f"CodeBuild role: {role_arn}..")
         artifact_bucket_name = os.environ['ARTIFACT_BUCKET']
@@ -76,7 +81,9 @@ def handler(event, context):
                     stack_name=stack_name,
                     account_id=account_id,
                     region=region,
-                    gh_api_token=gh_api_token
+                    gh_api_token=gh_api_token,
+                    docker_usr=docker_usr,
+                    docker_psw=docker_psw
                 )
             },
             sourceVersion=f'refs/heads/{src_branch}',

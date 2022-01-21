@@ -34,7 +34,7 @@ github_connector = GitHubConnectionStack(
     app,
     "GitHubConnectionStack",
     deploy_env="COMMON",
-    env=core.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
+    env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
 )
 
 # One ECR repo
@@ -43,7 +43,7 @@ ecr_registry = DockerRegistryStack(
     "MyBackendDockerRegistry",
     app_name="MyBackend",
     deploy_env="GLOBAL",
-    env=core.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
+    env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
 )
 ecr_repo = ecr_registry.ecr_repo
 
@@ -51,6 +51,7 @@ ecr_repo = ecr_registry.ecr_repo
 ReviewAppPipelineBuilderStack(app, "PipelineBuilder",
     github_api_token=os.getenv('GH_API_TOKEN'),
     github_repo_url="https://github.com/marianobrc/aws-review-apps.git",
+    aws_docker_secret_name=aws_docker_secret_name,
     env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
 )
 # Define an environment for review apps

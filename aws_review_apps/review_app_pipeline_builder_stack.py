@@ -9,6 +9,7 @@ from aws_cdk.aws_apigateway import LambdaRestApi
 from aws_cdk.aws_iam import Role, ServicePrincipal, ManagedPolicy, PolicyStatement
 from aws_cdk import aws_lambda
 from aws_cdk import aws_s3 as s3
+from aws_cdk import aws_secretsmanager as secretsmanager
 from cloudcomponents.cdk_github_webhook import GithubWebhook
 from cloudcomponents.cdk_secret_key import SecretKey
 
@@ -20,6 +21,7 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
         region = cdk.Aws.REGION
         github_api_token = kwargs.pop("github_api_token")
         github_repo_url = kwargs.pop("github_repo_url")
+        aws_docker_secret_name = kwargs.pop("aws_docker_secret_name")
         super().__init__(scope, construct_id, **kwargs)
 
         # IAM Role for the AWS Lambda function
@@ -111,7 +113,15 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
             actions=['iam:PassRole'],
             resources=[code_build_role.role_arn]
         ))
-
+        # Get docker credentials
+        docker_username = secretsmanager.Secret.from_secret_name_v2(
+            self, f"DockerUsernameSecret",
+            secret_name=f"{aws_docker_secret_name}:DOCKER_USERNAME"
+        ).secret_value.to_string()
+        docker_password = secretsmanager.Secret.from_secret_name_v2(
+            self, f"DockerPasswordSecret",
+            secret_name=f"{aws_docker_secret_name}:DOCKER_PASSWORD"
+        ).secret_value.to_string()
         # Define a lambda function to create and trigger a new pipeline on new PRs
         self.review_apps_builder_lambda = aws_lambda.Function(
             self,
@@ -126,6 +136,8 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
                 "GH_API_TOKEN": github_api_token,
                 "CODE_BUILD_ROLE_ARN": code_build_role.role_arn,
                 "ARTIFACT_BUCKET": artifact_bucket.bucket_name,
+                "DOCKER_USERNAME": docker_username,
+                "DOCKER_PASSWORD": docker_password,
             },
             role=lambda_role
         )
