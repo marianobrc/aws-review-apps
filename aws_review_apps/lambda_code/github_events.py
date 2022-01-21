@@ -63,8 +63,9 @@ def handler(event, context):
         region = os.environ['AWS_REGION']
         account_id = os.environ['ACCOUNT_ID']
         gh_api_token = os.environ['GH_API_TOKEN']
-        docker_usr = os.environ['DOCKER_CREDENTIALS']['DOCKER_USERNAME']
-        docker_psw = os.environ['DOCKER_CREDENTIALS']['DOCKER_PASSWORD']
+        docker_credentials = json.loads(os.environ['DOCKER_CREDENTIALS'])
+        docker_usr = docker_credentials['DOCKER_USERNAME']
+        docker_psw = docker_credentials['DOCKER_PASSWORD']
         role_arn = os.environ['CODE_BUILD_ROLE_ARN']
         logger.info(f"CodeBuild role: {role_arn}..")
         artifact_bucket_name = os.environ['ARTIFACT_BUCKET']
