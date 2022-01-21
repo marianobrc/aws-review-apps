@@ -114,13 +114,9 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
             resources=[code_build_role.role_arn]
         ))
         # Get docker credentials
-        docker_username = secretsmanager.Secret.from_secret_name_v2(
-            self, f"DockerUsernameSecret",
-            secret_name=f"{aws_docker_secret_name}:DOCKER_USERNAME"
-        ).secret_value.to_string()
-        docker_password = secretsmanager.Secret.from_secret_name_v2(
-            self, f"DockerPasswordSecret",
-            secret_name=f"{aws_docker_secret_name}:DOCKER_PASSWORD"
+        docker_credentials = secretsmanager.Secret.from_secret_name_v2(
+            self, f"DockerSecrets",
+            secret_name=aws_docker_secret_name
         ).secret_value.to_string()
         # Define a lambda function to create and trigger a new pipeline on new PRs
         self.review_apps_builder_lambda = aws_lambda.Function(
@@ -136,8 +132,7 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
                 "GH_API_TOKEN": github_api_token,
                 "CODE_BUILD_ROLE_ARN": code_build_role.role_arn,
                 "ARTIFACT_BUCKET": artifact_bucket.bucket_name,
-                "DOCKER_USERNAME": docker_username,
-                "DOCKER_PASSWORD": docker_password,
+                "DOCKER_CREDENTIALS": docker_credentials,
             },
             role=lambda_role
         )

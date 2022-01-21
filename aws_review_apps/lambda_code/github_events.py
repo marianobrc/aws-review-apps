@@ -10,7 +10,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 
-def generate_build_spec(branch: str, stack_name, account_id: str, region: str, gh_api_token: str, docker_usr: str, docker_psw: str)
+def generate_build_spec(branch: str, stack_name, account_id: str, region: str, gh_api_token: str, docker_usr: str, docker_psw: str):
     """Generates the build spec file used for the CodeBuild project"""
     return f"""version: 0.2
 env:
@@ -50,6 +50,7 @@ artifacts:
 
 def handler(event, context):
     """Lambda function handler"""
+    logger.debug(f"Environment:\n{os.environ}")
     gh_event = json.loads(event['body'])
     logger.debug(f"GH Event received:\n{gh_event}")
     action = gh_event.get("action")
@@ -62,8 +63,8 @@ def handler(event, context):
         region = os.environ['AWS_REGION']
         account_id = os.environ['ACCOUNT_ID']
         gh_api_token = os.environ['GH_API_TOKEN']
-        docker_usr = os.environ['DOCKER_USERNAME']
-        docker_psw = os.environ['DOCKER_PASSWORD']
+        docker_usr = os.environ['DOCKER_CREDENTIALS']['DOCKER_USERNAME']
+        docker_psw = os.environ['DOCKER_CREDENTIALS']['DOCKER_PASSWORD']
         role_arn = os.environ['CODE_BUILD_ROLE_ARN']
         logger.info(f"CodeBuild role: {role_arn}..")
         artifact_bucket_name = os.environ['ARTIFACT_BUCKET']
