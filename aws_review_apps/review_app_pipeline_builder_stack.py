@@ -99,9 +99,13 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
                 f'arn:aws:logs:{region}:{account_id}:log-group:/aws/codebuild/build-review-app-*',
                 f'arn:aws:logs:{region}:{account_id}:log-group:/aws/codebuild/build-review-app-*:*']
         ))
+        # Add permission to save artifacts in S3
         code_build_role.add_to_policy(PolicyStatement(
             actions=['s3:DeleteObject', 's3:PutObject', 's3:GetObject', 's3:ListBucket'],
-            resources=[f'{artifact_bucket.bucket_arn}/*', f'{artifact_bucket.bucket_arn}']
+            resources=[
+                f'{artifact_bucket.bucket_arn}/*', f'{artifact_bucket.bucket_arn}',
+                "arn:aws:s3:::cdk-*",
+            ]
         ))
         code_build_role.add_to_policy(PolicyStatement(
             actions=['sts:AssumeRole'],
