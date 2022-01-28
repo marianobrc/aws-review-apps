@@ -66,6 +66,14 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
             ],
             resources=['arn:aws:iam::*:role/cdk-*']
         ))
+        # Allow cdk to manage SSM parameters to check cdk versions
+        code_build_role.add_to_policy(PolicyStatement(
+            actions=[
+                'ssm:PutParameter',
+                'ssm:GetParameter'
+            ],
+            resources=['arn:aws:iam::*:role/cdk-*']
+        ))
         # Add permissions to run cdk and deploy stacks
         code_build_role.add_to_policy(PolicyStatement(
             actions=[
