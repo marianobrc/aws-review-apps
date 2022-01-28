@@ -58,7 +58,12 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
         )
         # Allow cdk bootstrap to manage roles
         code_build_role.add_to_policy(PolicyStatement(
-            actions=['iam:GetRole', 'iam:PassRole'],
+            actions=[
+                'iam:GetRole',
+                'iam:PassRole',
+                'iam:CreateRole',
+                'iam:TagResource',
+            ],
             resources=['arn:aws:iam::*:role/cdk-*']
         ))
         # Add permissions to run cdk and deploy stacks
