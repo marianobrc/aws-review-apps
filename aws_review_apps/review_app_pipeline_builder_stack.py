@@ -150,7 +150,15 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
                 '*'
             ]
         ))
-
+        # Add permissions to create a cloudfront distro (for static file)
+        code_build_role.add_to_policy(PolicyStatement(
+            actions=[
+                'cloudfront:CreateCloudFrontOriginAccessIdentity'
+            ],
+            resources=[
+                '*'
+            ]
+        ))
         code_build_role.add_to_policy(PolicyStatement(
             actions=['sts:AssumeRole'],
             resources=[f'arn:*:iam::{account_id}:role/*'],
