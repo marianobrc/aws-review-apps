@@ -72,7 +72,7 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
                 'ssm:PutParameter',
                 'ssm:GetParameter'
             ],
-            resources=['arn:aws:iam::*:role/cdk-*']
+            resources=['arn:aws:ssm:{region}:{account_id}:parameter/cdk-bootstrap/*']
         ))
         # Add permissions to run cdk and deploy stacks
         code_build_role.add_to_policy(PolicyStatement(
