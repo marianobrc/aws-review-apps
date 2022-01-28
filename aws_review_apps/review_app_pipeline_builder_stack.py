@@ -127,15 +127,30 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
                 's3:PutObject',
                 's3:GetObject',
                 's3:ListBucket',
-                's3:getBucketLocation',
-                's3:getEncryptionConfiguration',
+                's3:GetBucketLocation',
+                's3:GetEncryptionConfiguration',
             ],
             resources=[
                 f'{artifact_bucket.bucket_arn}/*', f'{artifact_bucket.bucket_arn}',
-                "arn:aws:s3:::cdk-*",
-                "arn:aws:s3:::cdktoolkit-stagingbucket-*",
+                'arn:aws:s3:::cdk-*',
+                'arn:aws:s3:::cdktoolkit-stagingbucket-*',
             ]
         ))
+        # Add permissions to read secrets
+        code_build_role.add_to_policy(PolicyStatement(
+            actions=[
+                'secretsmanager:GetRandomPassword',
+                'secretsmanager:GetResourcePolicy',
+                'secretsmanager:GetSecretValue',
+                'secretsmanager:DescribeSecret',
+                'secretsmanager:ListSecretVersionIds',
+                'secretsmanager:ListSecrets'
+            ],
+            resources=[
+                '*'
+            ]
+        ))
+
         code_build_role.add_to_policy(PolicyStatement(
             actions=['sts:AssumeRole'],
             resources=[f'arn:*:iam::{account_id}:role/*'],
