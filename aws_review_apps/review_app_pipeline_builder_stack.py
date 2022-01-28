@@ -56,6 +56,11 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
             'CodeBuildExecutionRole',
             assumed_by=ServicePrincipal('codebuild.amazonaws.com')
         )
+        # Allow cdk bootstrap to manage roles
+        lambda_role.add_to_policy(PolicyStatement(
+            actions=['iam:GetRole', 'iam:PassRole'],
+            resources=["*"]
+        ))
         # Add permissions to run cdk and deploy stacks
         code_build_role.add_to_policy(PolicyStatement(
             actions=[
