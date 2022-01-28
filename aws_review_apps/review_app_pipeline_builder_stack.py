@@ -122,10 +122,17 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
         ))
         # Add permission to save artifacts in S3
         code_build_role.add_to_policy(PolicyStatement(
-            actions=['s3:DeleteObject', 's3:PutObject', 's3:GetObject', 's3:ListBucket'],
+            actions=[
+                's3:DeleteObject',
+                's3:PutObject',
+                's3:GetObject',
+                's3:ListBucket',
+                's3:getBucketLocation'
+            ],
             resources=[
                 f'{artifact_bucket.bucket_arn}/*', f'{artifact_bucket.bucket_arn}',
                 "arn:aws:s3:::cdk-*",
+                "arn:aws:s3:::cdktoolkit-stagingbucket-*",
             ]
         ))
         code_build_role.add_to_policy(PolicyStatement(
