@@ -127,7 +127,8 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
                 's3:PutObject',
                 's3:GetObject',
                 's3:ListBucket',
-                's3:getBucketLocation'
+                's3:getBucketLocation',
+                's3:getEncryptionConfiguration',
             ],
             resources=[
                 f'{artifact_bucket.bucket_arn}/*', f'{artifact_bucket.bucket_arn}',
