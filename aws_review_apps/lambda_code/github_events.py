@@ -39,6 +39,7 @@ phases:
       - echo REGION:$REGION
       - echo REGION:$GH_API_TOKEN
       - cdk --version
+      - cdk bootstrap
       - cat ./cdk.context.json
       - cdk doctor
       - cdk synth -v {stack_name}
