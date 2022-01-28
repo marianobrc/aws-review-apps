@@ -63,6 +63,8 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
                 'iam:PassRole',
                 'iam:CreateRole',
                 'iam:TagResource',
+                'iam:DetachRolePolicy',
+                'iam:DeleteRole',
             ],
             resources=['arn:aws:iam::*:role/cdk-*']
         ))
@@ -88,6 +90,7 @@ class ReviewAppPipelineBuilderStack(cdk.Stack):
         code_build_role.add_to_policy(PolicyStatement(
             actions=[
                 'ecr:CreateRepository',
+                'ecr:DeleteRepository',
                 'ecr:DescribeRepositories',
                 'ecr:PutImageScanningConfiguration',
                 'ecr:DescribeImages',
